@@ -1,10 +1,19 @@
 const express = require("express");
 const nodemon = require("nodemon");
 const app = express();
+const connexion = require("./back/config");
 const server = require("http").Server(app);
 const io = require("socket.io")(server);
 const path = require("path");
+const bodyParser = require("body-parser");
+const cors = require("cors");
 const port = process.env.PORT || 3003;
+const road = require("./back/road.js");
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(cors());
+app.use("/road", road);
 
 app.use(express.static(path.join(__dirname, "public")));
 
