@@ -34,15 +34,7 @@ app.get("/callendar", function(req, res) {
   res.sendFile(path.join(__dirname + "/index.html"));
 });
 
-// app.get("/callendar/:id", function(req, res) {
-//   res.sendFile(path.join(__dirname + "/index.html"));
-// });
-
-// app.get("/register", function(req, res) {
-//   res.sendFile(__dirname + "/register.html");
-// });
-
-//ajouter un nouveau user
+//Route pour ajouter un nouveau user ==================================================================
 app.post("/addusers", (req, res) => {
   const sql = "INSERT INTO users (name, email, password) VALUES (?,?,?)";
   const values = [req.body.name, req.body.email, req.body.password];
@@ -55,7 +47,20 @@ app.post("/addusers", (req, res) => {
   });
 });
 
-//se connecter
+//Route pour poster un event ==========================================================================
+app.post("/addevents", (req, res) => {
+  const sql = "INSERT INTO events (title, date, idusers) VALUES (?, ?, ?)";
+  const values = [req.body.title, req.body.date, req.body.id];
+  connexion.query(sql, values, (err, result) => {
+    if (err) {
+      throw err;
+    } else {
+      return res.status(200).send(result);
+    }
+  });
+});
+
+//Route de  connection ================================================================================
 app.post("/login", (req, res) => {
   const name = req.body.name;
   const password = req.body.password;
@@ -88,34 +93,26 @@ app.post("/login", (req, res) => {
   }
 });
 
-//function pour la création du calendrier
+//function pour la création du calendrier ===========================================================
 calendarCreate = id => {
   let finalRes;
   axios.get(`http://localhost:3003/road/events/${id}`).then(res => {
     io.on("connection", function(socket) {
-      //envoi des datas au front
+      console.log(res.data);
+      //envoi des datas au front ========================================
       socket.emit(
         "events",
-        (data = [
-          {
-            groupId: 998,
-            title: res.data[0].title,
-            start: res.data[0].date
-          },
-          {
-            groupId: 999,
-            title: res.data[1].title,
-            start: res.data[1].date
-          }
-        ])
+        (data = res.data.map(e => {
+          return { title: e.title, start: e.date };
+        }))
       );
-      // /récupération de la data du front
+      // récupération de la data du front ===============================
       socket.on("events", data => {
-        // console.log("events from front", data.title, data.start, id);
         let date = data.start;
         date = moment(date).format("YYYY-MM-DD");
         let title = data.title;
 
+        //envoi de la data dans la BDD ==================================
         axios
           .post("http://localhost:3003/addevents", {
             title: title,
@@ -128,50 +125,7 @@ calendarCreate = id => {
   });
 };
 
-//Route pour poster un event a un user
-app.post("/addevents", (req, res) => {
-  const sql = "INSERT INTO events (title, date, idusers) VALUES (?, ?, ?)";
-  const values = [req.body.title, req.body.date, req.body.id];
-  connexion.query(sql, values, (err, result) => {
-    if (err) {
-      throw err;
-    } else {
-      return res.status(200).send(result);
-    }
-  });
-});
-
-//port d'écoute
+//port d'écoute =======================================================================================
 server.listen(port, function() {
   console.log("listening on port = " + port);
 });
-
-//initialisation de socket Io===================================================================
-// io.on("connection", function(socket) {
-//   //envoi des datas au front
-//   socket.emit(
-//     "events",
-//     (data = [
-//       {
-//         groupId: 998,
-//         title: "Repeating Event",
-//         start: "2019-05-07T16:00:00"
-//       },
-//       {
-//         groupId: 997,
-//         title: "Repeating Event",
-//         start: "2019-05-06T16:00:00"
-//       },
-//       {
-//         groupId: 999,
-//         title: "Repeating Event",
-//         start: "2019-05-03T16:00:00"
-//       }
-//     ])
-//   );
-
-//   //récupération de la data du front
-//   socket.on("events", data => {
-//     console.log("events from front", data);
-//   });
-// });
