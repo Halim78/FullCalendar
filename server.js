@@ -66,7 +66,6 @@ app.post("/login", (req, res) => {
   const password = req.body.password;
   const sql = "SELECT * FROM users WHERE name = ? AND password = ?";
   const values = [name, password];
-  console.log(name, password);
   if (name && password) {
     connexion.query(sql, values, (error, results, fields) => {
       console.log("resultas ++++>", results);
@@ -83,7 +82,8 @@ app.post("/login", (req, res) => {
         res.redirect("/callendar");
         calendarCreate(id);
       } else {
-        res.send("Incorrect Username and/or Password!");
+        // res.send("Incorrect Username and/or Password!");
+        res.redirect("/");
       }
       res.end();
     });
@@ -98,7 +98,6 @@ calendarCreate = id => {
   let finalRes;
   axios.get(`http://localhost:3003/road/events/${id}`).then(res => {
     io.on("connection", function(socket) {
-      console.log(res.data);
       //envoi des datas au front ========================================
       socket.emit(
         "events",
