@@ -1,12 +1,13 @@
 let socket = io();
 const date = moment().format();
 
-//Function envoi de data socket====================================================================
+//Function envoi de data socket=====================================================================
 function socketEmit(val, data) {
   socket.emit(val, data);
 }
 
-//au chargement de la page on affiche le calendrier, puis à chaque évenements on appel la function createEvent
+// au chargement de la page on affiche le calendrier, ==============================================
+//  puis à chaque évenements on appel la function createEvent
 $(document).ready(() => {
   let calendar = createCallendar();
   socket.on("events", data => {
@@ -14,7 +15,7 @@ $(document).ready(() => {
   });
 });
 
-//function pour ajouter l'event
+//Function pour ajouter l'event ====================================================================
 createEvent = (calendar, data) => {
   console.log("datatatatatata", data);
   data.map(e => calendar.addEvent(e));
@@ -47,9 +48,9 @@ createCallendar = () => {
           if (!isNaN(date.valueOf())) {
             calendar.addEvent(
               (data = {
-                // id: "1",
-                // resourceIds: ["2"],
-                title: "dynamic event",
+                id: "2", //id de celui qui créer l'event
+                resourceIds: ["1"], //id de ceux à qui sont envoyés les events
+                title: "test public events",
                 start: date
               })
             );
