@@ -23,13 +23,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
 app.use("/road", road);
-
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", function(req, res) {
   res.sendFile(__dirname + "/login.html");
 });
-
 app.get("/callendar", function(req, res) {
   res.sendFile(path.join(__dirname + "/index.html"));
 });
@@ -93,9 +91,8 @@ app.post("/login", (req, res) => {
   }
 });
 
-//function pour la création du calendrier ===========================================================
+//function pour la création du calendrier =============================================================
 calendarCreate = id => {
-  let finalRes;
   axios.get(`http://localhost:3003/road/events/${id}`).then(res => {
     io.on("connection", function(socket) {
       //envoi des datas au front ========================================
@@ -110,7 +107,7 @@ calendarCreate = id => {
         let date = data.start;
         date = moment(date).format("YYYY-MM-DD");
         let title = data.title;
-
+        console.log("=======", data);
         //envoi de la data dans la BDD ==================================
         axios
           .post("http://localhost:3003/addevents", {

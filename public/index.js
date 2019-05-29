@@ -6,16 +6,22 @@ function socketEmit(val, data) {
   socket.emit(val, data);
 }
 
-//Au chargement du DOM=============================================================================
-document.addEventListener("DOMContentLoaded", function() {
-  //réception des datas du serveur
+//au chargement de la page on affiche le calendrier, puis à chaque évenements on appel la function createEvent
+$(document).ready(() => {
+  let calendar = createCallendar();
   socket.on("events", data => {
-    doThisWithPrevious(data);
+    createEvent(calendar, data);
   });
 });
 
-//Function pour la création du calendrier avec la data récuperer du socket==========================
-function doThisWithPrevious(that) {
+//function pour ajouter l'event
+createEvent = (calendar, data) => {
+  console.log("datatatatatata", data);
+  data.map(e => calendar.addEvent(e));
+};
+
+//Function pour la création du calendrier avec la data récuperer du socket===========================
+createCallendar = () => {
   let calendarEl = document.getElementById("calendar");
   calendar = new FullCalendar.Calendar(calendarEl, {
     plugins: ["interaction", "dayGrid"],
@@ -25,7 +31,12 @@ function doThisWithPrevious(that) {
     defaultDate: `${date}`,
     editable: true,
     eventLimit: true,
-    events: that,
+    events: [
+      {
+        title: "test",
+        start: "2019-05-09"
+      }
+    ],
     customButtons: {
       addEventButton: {
         text: "add event...",
@@ -36,6 +47,8 @@ function doThisWithPrevious(that) {
           if (!isNaN(date.valueOf())) {
             calendar.addEvent(
               (data = {
+                // id: "1",
+                // resourceIds: ["2"],
                 title: "dynamic event",
                 start: date
               })
@@ -51,4 +64,5 @@ function doThisWithPrevious(that) {
     }
   });
   calendar.render();
-}
+  return calendar;
+};
